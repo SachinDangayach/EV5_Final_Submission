@@ -1,136 +1,13 @@
-"""Common.py Compute depth maps for images in the input folder.
-run function from Midas + Train function from YOLO
-"""
-import os
-import glob
-import torch
-import MiDaS.utils as midas_utils
-import cv2
-import argparse
-
-from torchvision.transforms import Compose
-from MiDaS.midas.midas_net import MidasNet
-from MiDaS.midas.midas_net_custom import MidasNet_small
-from MiDaS.midas.transforms import Resize, NormalizeImage, PrepareForNet
-
-
 import argparse
 
 import torch.distributed as dist
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 
-import YoloV3.test  # import test.py to get mAP after each epoch
-from YoloV3.models import *
-from YoloV3.utils.datasets import *
-from YoloV3.utils.utils import *
-
-
-
-def run(input_path, output_path, model_path, model_type="large", optimize=True):
-    """Run MonoDepthNN to compute depth maps.
-
-    Args:
-        input_path (str): path to input folder
-        output_path (str): path to output folder
-        model_path (str): path to saved model
-    """
-    print("initialize")
-
-    # select device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("device: %s" % device)
-
-    # load network
-    if model_type == "large":
-        model = MidasNet(None, non_negative=True)
-        net_w, net_h = 384, 384
-    elif model_type == "small":
-        model = MidasNet_small(model_path, features=64, backbone="efficientnet_lite3", exportable=True, non_negative=True, blocks={'expand': True})
-        net_w, net_h = 256, 256
-    else:
-        print(f"model_type '{model_type}' not implemented, use: --model_type large")
-        assert False
-    
-    transform = Compose(
-        [
-            Resize(
-                net_w,
-                net_h,
-                resize_target=None,
-                keep_aspect_ratio=True,
-                ensure_multiple_of=32,
-                resize_method="upper_bound",
-                image_interpolation_method=cv2.INTER_CUBIC,
-            ),
-            NormalizeImage(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            PrepareForNet(),
-        ]
-    )
-
-    model.eval()
-    
-    if optimize==True:
-        rand_example = torch.rand(1, 3, net_h, net_w)
-        model(rand_example)
-        traced_script_module = torch.jit.trace(model, rand_example)
-        model = traced_script_module
-    
-        if device == torch.device("cuda"):
-            model = model.to(memory_format=torch.channels_last)  
-            model = model.half()
-
-    model.to(device)
-
-    # get input
-    img_names = glob.glob(os.path.join(input_path, "*"))
-    num_images = len(img_names)
-
-    # create output folder
-    os.makedirs(output_path, exist_ok=True)
-
-    print("start processing")
-    outputs = []
-    for ind, img_name in enumerate(img_names):
-
-        print("  processing {} ({}/{})".format(img_name, ind + 1, num_images))
-
-        # input
-
-        img = midas_utils.read_image(img_name)
-        img_input = transform({"image": img})["image"]
-
-        # compute
-        with torch.no_grad():
-            sample = torch.from_numpy(img_input).to(device).unsqueeze(0)
-            if optimize==True and device == torch.device("cuda"):
-                sample = sample.to(memory_format=torch.channels_last)  
-                sample = sample.half()
-            prediction, outs = model.forward(sample)
-            prediction = (
-                torch.nn.functional.interpolate(
-                    prediction.unsqueeze(1),
-                    size=img.shape[:2],
-                    mode="bicubic",
-                    align_corners=False,
-                )
-                .squeeze()
-                .cpu()
-                .numpy()
-            )
-
-        # output
-        filename = os.path.join(
-            output_path, os.path.splitext(os.path.basename(img_name))[0]
-        )
-        midas_utils.write_depth(filename, prediction, bits=2)
-
-        outputs.append(outs)
-    print("finished")
-    return outputs
-
-
-
+import test  # import test.py to get mAP after each epoch
+from models import *
+from utils.datasets import *
+from utils.utils import *
 
 mixed_precision = True
 try:  # Mixed precision training https://github.com/NVIDIA/apex
@@ -177,7 +54,7 @@ if hyp['fl_gamma']:
     print('Using FocalLoss(gamma=%g)' % hyp['fl_gamma'])
 
 
-def train(outputs):
+def train():
     cfg = opt.cfg
     data = opt.data
     epochs = opt.epochs  # 500200 batches at bs 64, 117263 images = 273 epochs
@@ -383,7 +260,7 @@ def train(outputs):
                     imgs = F.interpolate(imgs, size=ns, mode='bilinear', align_corners=False)
 
             # Run model
-            pred = model(imgs,outputs[0])
+            pred = model(imgs)
 
             # Compute loss
             loss, loss_items = compute_loss(pred, targets, model)
@@ -508,47 +385,14 @@ def train(outputs):
 
 
 if __name__ == '__main__':
-# if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-
-    parser.add_argument('-i', '--input_path', 
-        default='input',
-        help='folder with input images'
-    )
-
-    parser.add_argument('-o', '--output_path', 
-        default='output',
-        help='folder for output images'
-    )
-
-    parser.add_argument('-m', '--model_weights', 
-        default='model-f6b98070.pt',
-        help='path to the trained weights of model'
-    )
-
-    parser.add_argument('-t', '--model_type', 
-        default='large',
-        help='model type: large or small'
-    )
-
-    parser.add_argument('--optimize', dest='optimize', action='store_true')
-    parser.add_argument('--no-optimize', dest='optimize', action='store_false')
-    parser.set_defaults(optimize=True)
-
-
-    # set torch options
-    torch.backends.cudnn.enabled = True
-    torch.backends.cudnn.benchmark = True
-
-    
-
-
-    # parser = argparse.ArgumentParser()
     parser.add_argument('--epochs', type=int, default=300)  # 500200 batches at bs 16, 117263 COCO images = 273 epochs
     parser.add_argument('--batch-size', type=int, default=16)  # effective bs = batch_size * accumulate = 16 * 4 = 64
     parser.add_argument('--accumulate', type=int, default=4, help='batches to accumulate before optimizing')
-    parser.add_argument('--cfg', type=str, default='YoloV3/cfg/yolov3-custom.cfg', help='*.cfg path')
-    parser.add_argument('--data', type=str, default='YoloV3/data/coco2017.data', help='*.data path')
+    # start 1
+    parser.add_argument('--cfg', type=str, default='cfg/yolov3-custom.cfg', help='*.cfg path')
+    # end 1
+    parser.add_argument('--data', type=str, default='data/coco2017.data', help='*.data path')
     parser.add_argument('--multi-scale', action='store_true', help='adjust (67%% - 150%%) img_size every 10 batches')
     parser.add_argument('--img-size', nargs='+', type=int, default=[512], help='[min_train, max-train, test] img sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
@@ -558,15 +402,12 @@ if __name__ == '__main__':
     parser.add_argument('--evolve', action='store_true', help='evolve hyperparameters')
     parser.add_argument('--bucket', type=str, default='', help='gsutil bucket')
     parser.add_argument('--cache-images', action='store_true', help='cache images for faster training')
-    parser.add_argument('--weights', type=str, default='YoloV3/weights/yolov3-spp-ultralytics.pt', help='initial weights path')
+    parser.add_argument('--weights', type=str, default='weights/yolov3-spp-ultralytics.pt', help='initial weights path')
     parser.add_argument('--name', default='', help='renames results.txt to results_name.txt if supplied')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1 or cpu)')
     parser.add_argument('--adam', action='store_true', help='use adam optimizer')
     parser.add_argument('--single-cls', action='store_true', help='train as single-class dataset')
     opt = parser.parse_args()
-
-    outs = run(opt.input_path, opt.output_path, opt.model_weights, opt.model_type, opt.optimize)
-
     opt.weights = last if opt.resume else opt.weights
     print(opt)
     opt.img_size.extend([opt.img_size[-1]] * (3 - len(opt.img_size)))  # extend to 3 sizes (min, max, test)
@@ -588,7 +429,7 @@ if __name__ == '__main__':
         except:
             pass
 
-        train(outs)  # train normally
+        train()  # train normally
 
     else:  # Evolve hyperparameters (optional)
         opt.notest, opt.nosave = True, True  # only test/save final epoch
@@ -634,15 +475,10 @@ if __name__ == '__main__':
                 hyp[k] = np.clip(hyp[k], v[0], v[1])
 
             # Train mutation
-            results = train(outs)
+            results = train()
 
             # Write mutation results
             print_mutation(hyp, results, opt.bucket)
 
             # Plot results
             # plot_evolution_results(hyp)
-
-
-
-
-

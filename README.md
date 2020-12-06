@@ -29,6 +29,19 @@ As the final expectations is to generate three outputs (depth map, plane-surface
     - [PlaneRCNN](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Model%20Architectures/planercnn_network)
 
 2. Midasnet with YOLO integration:
+    - **Changes** in MidasNet repo code
+      - [midas_net.py](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/MiDaS/midas_net.py)
+
+    - Changes in YOLO repo
+      - [models.py](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/YoloV3/models.py)
+      - [train.py](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/YoloV3/train.py)
+      - [yolov3-custom.cfg](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/YoloV3/yolov3-custom.cfg)
+
+    - [common.py](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/common.py)
+      I added the run function from Midas with Train function from YOLO in common.py
+
+    - [YOLO_Midas.ipynb](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/Yolo_Midas.ipynb)
+      I followed the steps to get the common encoder mode from midas and get it integrate with decoder of YOLO and load after loading the repos with changed codes. I could manage to run the training successfully but for batch size of one. Need to do code changes to let the batch size varied. Current restriction was due to Midas taking 1 image at time.
 
 
 3. Midasnet with PlaneRCNN integration:
@@ -36,4 +49,4 @@ I started with Midasnet and PlaneRCNN integration. I tried to integrate the enco
 
 **Conclusion**
 
-I couldn't achieve the desired result of combining all three networks. I could connect YOLO and MIDasnet and get them train in ipynb notebook by loading the weights but couldn't finish the integration. I have followed the entire course and didn't miss any assignment. I feel I need to work on my Python skills (undergoing EPAI) and need to do more practice. I will work on this assignment and complete it by working on gaps in my understand and skills.
+I couldn't achieve the desired result of combining all three networks. I could connect YOLO and MIDasnet and get them train in [ipynb notebook](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/Yolo_Midas.ipynb) by loading the weights but couldn't finish the integration. I have followed the entire course and didn't miss any assignment. I feel I need to work on my Python skills (undergoing EPAI) and need to do more practice. I will work on this assignment and complete it by working on gaps in my understand and skills.
