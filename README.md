@@ -14,18 +14,25 @@ Assignment is to create a network that can perform 3 tasks simultaneously:
 The Final assignment required the applications of concepts we learnt throughout the course. As we started from understanding the basics of neuarl networks, convolutions, regualarization, how to play with learning rates, data augmentations, advance convolutions and modern nn architecture like Reset. In last three sessions we learn the object detection network - YOLO. We started with data creation to train a network able to classify four different classes (hard hat, vests, masks and boots). We trained the YOLO network with the collective [dataset 1](https://drive.google.com/file/d/1EqtOpF7cS74C56EaVQoKNkQmpT6_HFL2/view?usp=sharing) we prepared.
 In the next session we understood the architect of RCNNs, PlaneRCNN and MaskRCNN. We used the same dataset which we used to train the YOLO while we used the pretrained MidasNet to get the depth images [dataset 2](https://drive.google.com/file/d/1ALKKsABUnbI0FodCvdFRRGwcfFUVirvd/view?usp=sharing) and we used the pretrained network and generated the output of plane-surface [dataset 3](https://drive.google.com/file/d/1ycFC7INzTajJFmEV22ns-v813-wfJBta/view?usp=sharing).
 
-DATASETS FOR TRAINING-
-dataset1 , dataset2 and dataset3 are the groundtruth for training the final network.
+**DATASETS FOR TRAINING**-
+dataset1 , dataset2 and dataset3 mentioned above are the ground truth for training the final network.
 
-MODEL ARCHITECTURE-
+**MODEL ARCHITECTURE**-
 As the final expectations is to generate three outputs (depth map, plane-surface and bounding boxes) we need to go for encoder decoder architecture. As Midas model is trained by intel on huge dataset, I decided to follow the below mentioned approach-
-1. Keep MidasNet as the central netwrok with pretrained weights. I will freeze this network. As YOLO and PlaneRCNN has got similar encoder decoder architecture, I will connect the decoder of darknet53 while replacing the encoder with encoder of Midas and simialry I will connect the decoder of resnet with PlaneRCNN while keeping the encoder from Midas.
+1. Keep MidasNet as the central network with pretrained weights. I will freeze this network. As YOLO and PlaneRCNN has got similar encoder decoder architecture, I will connect the decoder of darknet53 while replacing the encoder with encoder of Midas and similarly I will connect the decoder of resnet with PlaneRCNN while keeping the encoder from Midas.
 2. Once I am able to connect with networks, I will work on the loss function and train the models ( Decoder part for YOLO and planeRCNN) as described in last session.
 
-STEPS Followed-
+**STEPS Followed**-
 1. Get the existing architecture for MidasNet, YOLO( darknet53) and PlaneRCNN: Explore the repo code and get the architecture. Files are attached below-
-(MidasNet)
-(YOLO-darknet53)
-(PlaneRCNN)
+    - [MidasNet](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/midas_network)
+    - [YOLO-darknet53](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/yolo_network)
+    - [PlaneRCNN](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/planercnn_network)
 
-Midasnet with PlaneRCNN integration:
+2. Midasnet with YOLO integration:
+
+
+3. Midasnet with PlaneRCNN integration:
+I started with Midasnet and PlaneRCNN integration. I tried to integrate the encoder on Midas with resnet of planercnn as in the attached [file](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/PlanerCNN_and_Midas_combined.ipynb) but I couldn't get the success as I faced multiple issues due to version miss-match between libraries.
+
+**Conclusion**
+I couldn't achieve the desired result of combining all three networks. I could connect YOLO and MIDasnet and get them train in ipynb notebook by loading the weights but couldn't finish the integration. I have followed the entire course and didn't miss any assignment. I feel I need to work on my Python skills (undergoing EPAI) and need to do more practice. I will work on this assignment and complete it by working on gaps in my understand and skills.
