@@ -49,4 +49,4 @@ I started with Midasnet and PlaneRCNN integration. I tried to integrate the enco
 
 **Conclusion**
 
-I couldn't achieve the desired result of combining all three networks. I could connect YOLO and MIDasnet and get them train in [ipynb notebook](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/Yolo_Midas.ipynb) by loading the weights but couldn't finish the integration. I will work on this assignment and complete it by working on gaps in my understand and skills.
+I couldn't achieve the desired result of combining all three networks. I could connect YOLO and MIDasnet and get the train loop run in [ipynb notebook](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Yolo_Midas_Integration_Code/Yolo_Midas.ipynb) by loading the weights but couldn't finish the integration. I will work on this assignment and complete it by working on gaps in my understand and skills.
