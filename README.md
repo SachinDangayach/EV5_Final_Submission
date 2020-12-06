@@ -32,7 +32,8 @@ As the final expectations is to generate three outputs (depth map, plane-surface
 
 
 3. Midasnet with PlaneRCNN integration:
-I started with Midasnet and PlaneRCNN integration. I tried to integrate the encoder on Midas with resnet of planercnn as in the attached [file](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/PlanerCNN_and_Midas_combined.ipynb) but I couldn't get the success as I faced multiple issues due to version miss-match between libraries.
+I started with Midasnet and PlaneRCNN integration. I tried to integrate the encoder on Midas with resnet of planercnn as in the linked [file](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/PlanerCNN_and_Midas_combined.ipynb) but I couldn't get the success as I faced multiple issues due to version miss-match between libraries.
 
 **Conclusion**
+
 I couldn't achieve the desired result of combining all three networks. I could connect YOLO and MIDasnet and get them train in ipynb notebook by loading the weights but couldn't finish the integration. I have followed the entire course and didn't miss any assignment. I feel I need to work on my Python skills (undergoing EPAI) and need to do more practice. I will work on this assignment and complete it by working on gaps in my understand and skills.
