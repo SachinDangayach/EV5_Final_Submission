@@ -24,15 +24,15 @@ As the final expectations is to generate three outputs (depth map, plane-surface
 
 **STEPS Followed**-
 1. Get the existing architecture for MidasNet, YOLO( darknet53) and PlaneRCNN: Explore the repo code and get the architecture. Files are attached below-
-    - [MidasNet](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/midas_network)
-    - [YOLO-darknet53](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/yolo_network)
-    - [PlaneRCNN](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/planercnn_network)
+    - [MidasNet](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Model%20Architectures/midas_network)
+    - [YOLO-darknet53](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Model%20Architectures/yolo_network)
+    - [PlaneRCNN](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/Model%20Architectures/planercnn_network)
 
 2. Midasnet with YOLO integration:
 
 
 3. Midasnet with PlaneRCNN integration:
-I started with Midasnet and PlaneRCNN integration. I tried to integrate the encoder on Midas with resnet of planercnn as in the linked [file](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/PlanerCNN_and_Midas_combined.ipynb) but I couldn't get the success as I faced multiple issues due to version miss-match between libraries.
+I started with Midasnet and PlaneRCNN integration. I tried to integrate the encoder on Midas with resnet of planercnn as in the linked [file](https://github.com/SachinDangayach/EV5_Final_Submission/blob/master/PlanerCNN_Midas_Integration/PlanerCNN_and_Midas_combined.ipynb) but I couldn't get the success as I faced multiple issues due to version miss-match between libraries.
 
 **Conclusion**
 
